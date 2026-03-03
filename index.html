@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Similarweb SI – Settings & Integrations</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f6fa;
+      color: #2b2d42;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 48px;
+      background: #fff;
+      border-right: 1px solid #e4e6ed;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px 0;
+      gap: 20px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      z-index: 10;
+    }
+    .sidebar .logo {
+      width: 28px;
+      height: 28px;
+      margin-bottom: 8px;
+    }
+    .sidebar .nav-icon {
+      width: 22px;
+      height: 22px;
+      color: #8b8fa3;
+      cursor: pointer;
+      transition: color .15s;
+    }
+    .sidebar .nav-icon:hover { color: #2b2d42; }
+    .sidebar .nav-icon.active { color: #1a73e8; }
+    .sidebar .spacer { flex: 1; }
+
+    /* ── Main content ── */
+    .main {
+      margin-left: 48px;
+      flex: 1;
+      padding: 32px 48px 64px;
+      max-width: 960px;
+    }
+
+    /* ── HubSpot card (top, partially shown context) ── */
+    .integration-card {
+      background: #fff;
+      border: 1px solid #e4e6ed;
+      border-radius: 8px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      display: flex;
+      gap: 28px;
+      align-items: flex-start;
+    }
+    .integration-card .logo-block {
+      flex-shrink: 0;
+      width: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .integration-card .logo-block img {
+      max-width: 100%;
+    }
+    .integration-card .details { flex: 1; }
+    .integration-card .sync-time {
+      font-size: 12px;
+      color: #8b8fa3;
+      margin-bottom: 10px;
+    }
+    .detail-row {
+      display: flex;
+      gap: 12px;
+      font-size: 13.5px;
+      line-height: 1.9;
+    }
+    .detail-row .label {
+      min-width: 180px;
+      color: #5a5d72;
+    }
+    .detail-row .value { color: #2b2d42; }
+    .detail-row .value.on { color: #1a73e8; }
+    .detail-row .value.off { color: #e8710a; }
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 16px;
+    }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      border: none;
+      border-radius: 20px;
+      padding: 8px 20px;
+      cursor: pointer;
+      transition: background .15s, box-shadow .15s;
+      text-decoration: none;
+    }
+    .btn-primary {
+      background: #1a73e8;
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: #1565d4;
+      box-shadow: 0 2px 6px rgba(26,115,232,.3);
+    }
+    .btn svg { width: 13px; height: 13px; }
+
+    /* ── Links ── */
+    .card-link {
+      font-size: 13px;
+      color: #1a73e8;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-weight: 500;
+      transition: color .15s;
+    }
+    .card-link:hover { color: #1255b8; text-decoration: underline; }
+    .card-link svg { width: 13px; height: 13px; }
+
+    /* ── Section heading ── */
+    .section-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin: 32px 0 18px;
+      color: #2b2d42;
+    }
+
+    /* ── API cards ── */
+    .api-card {
+      background: #fff;
+      border: 1px solid #e4e6ed;
+      border-radius: 8px;
+      padding: 24px 28px;
+      margin-bottom: 16px;
+      display: flex;
+      gap: 24px;
+      align-items: flex-start;
+    }
+    .api-card .illustration {
+      flex-shrink: 0;
+      width: 80px;
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .api-card .content { flex: 1; }
+    .api-card .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #2b2d42;
+    }
+    .api-card .card-desc {
+      font-size: 13.5px;
+      color: #5a5d72;
+      margin-bottom: 6px;
+    }
+    .api-card ul {
+      padding-left: 18px;
+      margin: 6px 0 0;
+    }
+    .api-card ul li {
+      font-size: 13px;
+      color: #5a5d72;
+      line-height: 1.7;
+    }
+    .status-row {
+      display: flex;
+      gap: 12px;
+      font-size: 13.5px;
+      line-height: 1.9;
+    }
+    .status-row .label {
+      min-width: 160px;
+      color: #5a5d72;
+    }
+    .status-row .value { color: #2b2d42; }
+    .status-row .value.configured { color: #0daa4e; font-weight: 500; }
+
+    /* ── Suppression list card ── */
+    .suppression-card {
+      background: #fff;
+      border: 1px solid #e4e6ed;
+      border-radius: 8px;
+      padding: 24px 28px;
+      display: flex;
+      gap: 24px;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+    .suppression-card .illustration {
+      flex-shrink: 0;
+      width: 80px;
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .suppression-card .content { flex: 1; }
+    .suppression-card .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      color: #2b2d42;
+    }
+    .suppression-card .card-desc {
+      font-size: 13.5px;
+      color: #5a5d72;
+      margin-bottom: 6px;
+    }
+    .suppression-card ul {
+      padding-left: 18px;
+      margin: 4px 0 0;
+    }
+    .suppression-card ul li {
+      font-size: 13px;
+      color: #5a5d72;
+      line-height: 1.7;
+    }
+
+    /* ── Illustration SVGs ── */
+    .illust-circle {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .illust-circle.blue { background: #e8f0fe; }
+    .illust-circle.green { background: #e6f7ed; }
+    .illust-circle.orange { background: #fef3e2; }
+  </style>
+</head>
+<body>
+
+<!-- ── Sidebar ── -->
+<nav class="sidebar">
+  <svg class="logo" viewBox="0 0 28 28" fill="none">
+    <circle cx="14" cy="14" r="14" fill="#1a73e8"/>
+    <path d="M8 18c2-6 4-8 6-8s4 2 6 8" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+  </svg>
+
+  <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z"/></svg>
+
+  <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z"/></svg>
+
+  <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+
+  <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2M9 5h6"/></svg>
+
+  <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0a3 3 0 11-6 0m6 0H9"/></svg>
+
+  <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.32 9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+
+  <div class="spacer"></div>
+
+  <svg class="nav-icon active" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+</nav>
+
+<!-- ── Main ── -->
+<div class="main">
+
+  <!-- HubSpot Integration Card -->
+  <div class="integration-card">
+    <div class="logo-block">
+      <svg width="90" height="32" viewBox="0 0 90 32" fill="none">
+        <rect width="90" height="32" rx="4" fill="#f5f5f5"/>
+        <text x="12" y="21" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="700" fill="#ff7a59">HubSpot</text>
+      </svg>
+    </div>
+    <div class="details">
+      <div class="sync-time">Last sync: 11 minutes ago</div>
+      <div class="detail-row"><span class="label">Import to Similarweb:</span><span class="value on">ON</span><span class="value" style="margin-left:4px;color:#8b8fa3">(HubSpot Lists, HubSpot Filters, HubSpot Status)</span></div>
+      <div class="detail-row"><span class="label">Export to HubSpot:</span><span class="value on">ON</span><span class="value" style="margin-left:4px;color:#8b8fa3">(Companies, Contacts)</span></div>
+      <div class="detail-row"><span class="label">HubSpot Enrichment:</span><span class="value off">OFF</span></div>
+      <div class="card-footer">
+        <a href="#" class="btn btn-primary">Manage</a>
+        <a href="#" class="card-link">View HubSpot integration manual
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 3h8v8M13 3L3 13"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- APIs Section -->
+  <h2 class="section-title">APIs</h2>
+
+  <!-- ★ NEW — Find New Companies API card ★ -->
+  <div class="api-card">
+    <div class="illustration">
+      <div class="illust-circle blue">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+          <rect x="4" y="8" width="24" height="18" rx="3" stroke="#1a73e8" stroke-width="1.8" fill="none"/>
+          <circle cx="12" cy="16" r="3" stroke="#1a73e8" stroke-width="1.5" fill="none"/>
+          <path d="M18 14h6M18 18h4" stroke="#1a73e8" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M26 22l3 3" stroke="#f9a825" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="24" cy="20" r="4" stroke="#f9a825" stroke-width="1.6" fill="none"/>
+        </svg>
+      </div>
+    </div>
+    <div class="content">
+      <div class="card-title">Find New Companies API</div>
+      <p class="card-desc">Discover in real time new companies matching your ICPs</p>
+      <div class="status-row"><span class="label">Webhook status:</span><span class="value configured">Configured</span></div>
+      <div class="status-row"><span class="label">Subscribed dynamic lists:</span><span class="value">3</span></div>
+      <div class="status-row"><span class="label">New companies found recently:</span><span class="value">86</span></div>
+      <div class="card-footer">
+        <a href="manage-find-companies.html" class="btn btn-primary">Manage</a>
+        <a href="#" class="card-link">View documentation
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 3h8v8M13 3L3 13"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Signals API Card -->
+  <div class="api-card">
+    <div class="illustration">
+      <div class="illust-circle blue">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+          <path d="M6 8h20v16H6z" stroke="#1a73e8" stroke-width="1.6" fill="none" rx="2"/>
+          <path d="M6 12h20" stroke="#1a73e8" stroke-width="1.4"/>
+          <circle cx="10" cy="10" r="1.2" fill="#f9a825"/>
+          <circle cx="14" cy="10" r="1.2" fill="#0daa4e"/>
+          <circle cx="18" cy="10" r="1.2" fill="#e8710a"/>
+          <path d="M10 17l4-3 4 3 4-2" stroke="#1a73e8" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M27 21l3 3" stroke="#f9a825" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="25" cy="19" r="4" stroke="#f9a825" stroke-width="1.5" fill="none"/>
+        </svg>
+      </div>
+    </div>
+    <div class="content">
+      <div class="card-title">Signals API</div>
+      <div class="status-row"><span class="label">Webhook status:</span><span class="value configured">Configured</span></div>
+      <div class="status-row"><span class="label">Subscribed domains:</span><span class="value">80</span></div>
+      <div class="status-row"><span class="label">Active signals:</span><span class="value">4</span></div>
+      <div class="card-footer">
+        <a href="#" class="btn btn-primary">Manage</a>
+        <a href="#" class="card-link">View Signals API manual
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 3h8v8M13 3L3 13"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contacts API Card -->
+  <div class="api-card">
+    <div class="illustration">
+      <div class="illust-circle blue">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+          <circle cx="12" cy="12" r="4" stroke="#1a73e8" stroke-width="1.6" fill="none"/>
+          <path d="M6 24c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="#1a73e8" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+          <circle cx="22" cy="14" r="3" stroke="#5ab0f7" stroke-width="1.4" fill="none"/>
+          <path d="M18 26c0-2.2 1.8-4 4-4s4 1.8 4 4" stroke="#5ab0f7" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+    <div class="content">
+      <div class="card-title">Contacts API</div>
+      <p class="card-desc">Find and enrich business contacts with ease:</p>
+      <ul>
+        <li>Search for contacts using filters like name, company, or role</li>
+        <li>Enrich results with verified emails, phone numbers, titles, and company details</li>
+      </ul>
+      <div class="card-footer">
+        <a href="#" class="btn btn-primary">API management
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 3h8v8M13 3L3 13"/></svg>
+        </a>
+        <a href="#" class="card-link">View documentation
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 3h8v8M13 3L3 13"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Accounts Suppression Lists Section -->
+  <h2 class="section-title">Accounts Suppression Lists</h2>
+
+  <div class="suppression-card">
+    <div class="illustration">
+      <div class="illust-circle" style="background:#f0f0f5;">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+          <rect x="6" y="4" width="20" height="24" rx="2" stroke="#8b8fa3" stroke-width="1.6" fill="none"/>
+          <path d="M11 12h10M11 16h10M11 20h6" stroke="#8b8fa3" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+    <div class="content">
+      <div class="card-title">Upload a Suppression List</div>
+      <p class="card-desc">Make sure your team isn't targeting the wrong accounts:</p>
+      <ul>
+        <li>Simply upload a list of websites to exclude which can easily be updated</li>
+        <li>Other users you opt out from it if needed</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

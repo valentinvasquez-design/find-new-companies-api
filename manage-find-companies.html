@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Find New Companies API</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f6fa;
+      color: #2b2d42;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 48px;
+      background: #fff;
+      border-right: 1px solid #e4e6ed;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px 0;
+      gap: 20px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      z-index: 10;
+    }
+    .sidebar .logo { width: 28px; height: 28px; margin-bottom: 8px; }
+    .sidebar .nav-icon {
+      width: 22px; height: 22px; color: #8b8fa3; cursor: pointer; transition: color .15s;
+    }
+    .sidebar .nav-icon:hover { color: #2b2d42; }
+    .sidebar .nav-icon.active { color: #1a73e8; }
+    .sidebar .spacer { flex: 1; }
+
+    /* ── Main ── */
+    .main {
+      margin-left: 48px;
+      flex: 1;
+      padding: 28px 48px 64px;
+      max-width: 960px;
+    }
+
+    /* ── Back link ── */
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #1a73e8;
+      text-decoration: none;
+      margin-bottom: 16px;
+      transition: color .15s;
+    }
+    .back-link:hover { color: #1255b8; }
+    .back-link svg { width: 14px; height: 14px; }
+
+    /* ── Page title ── */
+    .page-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #2b2d42;
+      margin-bottom: 28px;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: #fff;
+      border: 1px solid #e4e6ed;
+      border-radius: 8px;
+      padding: 28px 28px 24px;
+      margin-bottom: 20px;
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 24px;
+    }
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #2b2d42;
+    }
+    .card-subtitle {
+      font-size: 13px;
+      color: #8b8fa3;
+      margin-top: 3px;
+    }
+
+    /* ── Table ── */
+    .webhook-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .webhook-table thead th {
+      text-align: left;
+      font-size: 12px;
+      font-weight: 600;
+      color: #8b8fa3;
+      text-transform: uppercase;
+      letter-spacing: .3px;
+      padding: 0 12px 10px;
+      border-bottom: 1px solid #e4e6ed;
+    }
+    .webhook-table thead th:first-child { padding-left: 0; }
+    .webhook-table tbody td {
+      padding: 12px 12px;
+      vertical-align: middle;
+      border-bottom: 1px solid #f0f1f5;
+    }
+    .webhook-table tbody td:first-child { padding-left: 0; }
+    .col-url { width: 50%; }
+    .col-list { width: 35%; }
+    .col-actions { width: 15%; white-space: nowrap; text-align: right; }
+
+    /* ── Inputs ── */
+    .input-url {
+      width: 100%;
+      padding: 9px 12px;
+      font-size: 13px;
+      font-family: inherit;
+      border: 1px solid #d8dae5;
+      border-radius: 6px;
+      color: #2b2d42;
+      background: #fff;
+      outline: none;
+      transition: border-color .15s;
+    }
+    .input-url:focus { border-color: #1a73e8; }
+    .input-url::placeholder { color: #b0b3c6; }
+
+    .select-list {
+      width: 100%;
+      padding: 9px 32px 9px 12px;
+      font-size: 13px;
+      font-family: inherit;
+      border: 1px solid #d8dae5;
+      border-radius: 6px;
+      color: #2b2d42;
+      background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M3 5l3 3 3-3' stroke='%238b8fa3' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 10px center;
+      appearance: none;
+      outline: none;
+      cursor: pointer;
+      transition: border-color .15s;
+    }
+    .select-list:focus { border-color: #1a73e8; }
+
+    /* ── Action buttons ── */
+    .btn-test {
+      font-size: 13px;
+      font-weight: 500;
+      color: #1a73e8;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 6px 10px;
+      border-radius: 4px;
+      transition: background .15s;
+    }
+    .btn-test:hover { background: #e8f0fe; }
+
+    .btn-delete {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #8b8fa3;
+      padding: 6px;
+      border-radius: 4px;
+      transition: color .15s, background .15s;
+      vertical-align: middle;
+    }
+    .btn-delete:hover { color: #e04040; background: #fef0f0; }
+    .btn-delete svg { width: 16px; height: 16px; display: block; }
+
+    /* ── Add another ── */
+    .add-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #1a73e8;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 12px 0 0;
+      transition: color .15s;
+    }
+    .add-row:hover { color: #1255b8; }
+    .add-row svg { width: 14px; height: 14px; }
+  </style>
+</head>
+<body>
+
+<!-- ── Sidebar (same as main page) ── -->
+<nav class="sidebar">
+  <svg class="logo" viewBox="0 0 28 28" fill="none">
+    <circle cx="14" cy="14" r="14" fill="#1a73e8"/>
+    <path d="M8 18c2-6 4-8 6-8s4 2 6 8" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+  </svg>
+  <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z"/></svg>
+  <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z"/></svg>
+  <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+  <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2M9 5h6"/></svg>
+  <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0a3 3 0 11-6 0m6 0H9"/></svg>
+  <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.32 9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+  <div class="spacer"></div>
+  <svg class="nav-icon active" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+</nav>
+
+<!-- ── Main ── -->
+<div class="main">
+
+  <a href="index.html" class="back-link">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M10 3L5 8l5 5"/></svg>
+    Back
+  </a>
+
+  <h1 class="page-title">Manage Find New Companies API</h1>
+
+  <!-- Webhook Card -->
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">Webhook</div>
+        <div class="card-subtitle">Set up endpoints to receive new companies matching your ICP</div>
+      </div>
+    </div>
+
+    <table class="webhook-table">
+      <thead>
+        <tr>
+          <th class="col-url">URL (<span id="url-count">1</span>/5)</th>
+          <th class="col-list">Dynamic list</th>
+          <th class="col-actions"></th>
+        </tr>
+      </thead>
+      <tbody id="webhook-rows">
+        <tr>
+          <td class="col-url">
+            <input type="text" class="input-url" placeholder="https://your-endpoint.com/webhook" />
+          </td>
+          <td class="col-list">
+            <select class="select-list">
+              <option value="" disabled selected>Select a list…</option>
+              <option value="icp-tech-companies">ICP — Tech Companies</option>
+              <option value="icp-ecommerce">ICP — E-Commerce</option>
+              <option value="high-growth-saas">High Growth SaaS</option>
+              <option value="enterprise-accounts">Enterprise Accounts</option>
+              <option value="smb-prospects">SMB Prospects</option>
+              <option value="competitor-customers">Competitor Customers</option>
+              <option value="new-market-entries">New Market Entries</option>
+            </select>
+          </td>
+          <td class="col-actions">
+            <button class="btn-test">Test</button>
+            <button class="btn-delete" title="Remove" onclick="removeRow(this)">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M3 4h10M6 4V3a1 1 0 011-1h2a1 1 0 011 1v1M5 4v9a1 1 0 001 1h4a1 1 0 001-1V4"/></svg>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <button class="add-row" id="add-btn" onclick="addRow()">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>
+      Add another
+    </button>
+  </div>
+
+</div>
+
+<script>
+  const MAX_ROWS = 5;
+
+  const listOptions = [
+    { value: 'icp-tech-companies', label: 'ICP — Tech Companies' },
+    { value: 'icp-ecommerce', label: 'ICP — E-Commerce' },
+    { value: 'high-growth-saas', label: 'High Growth SaaS' },
+    { value: 'enterprise-accounts', label: 'Enterprise Accounts' },
+    { value: 'smb-prospects', label: 'SMB Prospects' },
+    { value: 'competitor-customers', label: 'Competitor Customers' },
+    { value: 'new-market-entries', label: 'New Market Entries' },
+  ];
+
+  function buildSelectHTML() {
+    let html = '<option value="" disabled selected>Select a list…</option>';
+    listOptions.forEach(o => {
+      html += `<option value="${o.value}">${o.label}</option>`;
+    });
+    return html;
+  }
+
+  function updateCount() {
+    const rows = document.querySelectorAll('#webhook-rows tr');
+    document.getElementById('url-count').textContent = rows.length;
+    document.getElementById('add-btn').style.display = rows.length >= MAX_ROWS ? 'none' : '';
+  }
+
+  function addRow() {
+    const tbody = document.getElementById('webhook-rows');
+    if (tbody.querySelectorAll('tr').length >= MAX_ROWS) return;
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="col-url">
+        <input type="text" class="input-url" placeholder="https://your-endpoint.com/webhook" />
+      </td>
+      <td class="col-list">
+        <select class="select-list">${buildSelectHTML()}</select>
+      </td>
+      <td class="col-actions">
+        <button class="btn-test">Test</button>
+        <button class="btn-delete" title="Remove" onclick="removeRow(this)">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M3 4h10M6 4V3a1 1 0 011-1h2a1 1 0 011 1v1M5 4v9a1 1 0 001 1h4a1 1 0 001-1V4"/></svg>
+        </button>
+      </td>`;
+    tbody.appendChild(tr);
+    updateCount();
+  }
+
+  function removeRow(btn) {
+    const tbody = document.getElementById('webhook-rows');
+    if (tbody.querySelectorAll('tr').length <= 1) return;
+    btn.closest('tr').remove();
+    updateCount();
+  }
+</script>
+
+</body>
+</html>
