@@ -299,6 +299,24 @@
       color: #8b8fa3;
       font-weight: 500;
     }
+    .pricing-note {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 12px;
+      font-size: 12.5px;
+      color: #e8710a;
+      font-weight: 500;
+    }
+    .pricing-note svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+    .select-list option:disabled {
+      color: #b0b3c6;
+    }
+    .opt-count {
+      color: #8b8fa3;
+      font-size: 12px;
+    }
   </style>
 </head>
 <body>
@@ -345,6 +363,10 @@
         <span class="pricing-badge">COST</span>
         <span class="pricing-value">1 <span class="pricing-unit">Data Credit / new company</span></span>
       </div>
+      <div class="pricing-note">
+        <svg viewBox="0 0 16 16" fill="none" stroke="#e8710a" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6.5"/><path d="M8 5.5v3M8 10.5v.01"/></svg>
+        Only dynamic lists with up to 100K companies can be set up with the webhook.
+      </div>
     </div>
     <div class="pricing-meter">
       <div class="meter-ring">
@@ -386,13 +408,13 @@
           <td class="col-list">
             <select class="select-list">
               <option value="" disabled selected>Select a list…</option>
-              <option value="icp-tech-companies">ICP — Tech Companies</option>
-              <option value="icp-ecommerce">ICP — E-Commerce</option>
-              <option value="high-growth-saas">High Growth SaaS</option>
-              <option value="enterprise-accounts">Enterprise Accounts</option>
-              <option value="smb-prospects">SMB Prospects</option>
-              <option value="competitor-customers">Competitor Customers</option>
-              <option value="new-market-entries">New Market Entries</option>
+              <option value="icp-tech-companies">ICP — Tech Companies · 24K</option>
+              <option value="icp-ecommerce">ICP — E-Commerce · 1.2K</option>
+              <option value="high-growth-saas">High Growth SaaS · 0.6K</option>
+              <option value="enterprise-accounts" disabled>Enterprise Accounts · 142K (exceeds 100K)</option>
+              <option value="smb-prospects">SMB Prospects · 18K</option>
+              <option value="competitor-customers">Competitor Customers · 52K</option>
+              <option value="new-market-entries" disabled>New Market Entries · 210K (exceeds 100K)</option>
             </select>
           </td>
           <td class="col-actions">
@@ -417,19 +439,21 @@
   const MAX_ROWS = 5;
 
   const listOptions = [
-    { value: 'icp-tech-companies', label: 'ICP — Tech Companies' },
-    { value: 'icp-ecommerce', label: 'ICP — E-Commerce' },
-    { value: 'high-growth-saas', label: 'High Growth SaaS' },
-    { value: 'enterprise-accounts', label: 'Enterprise Accounts' },
-    { value: 'smb-prospects', label: 'SMB Prospects' },
-    { value: 'competitor-customers', label: 'Competitor Customers' },
-    { value: 'new-market-entries', label: 'New Market Entries' },
+    { value: 'icp-tech-companies', label: 'ICP — Tech Companies', count: '24K', over: false },
+    { value: 'icp-ecommerce', label: 'ICP — E-Commerce', count: '1.2K', over: false },
+    { value: 'high-growth-saas', label: 'High Growth SaaS', count: '0.6K', over: false },
+    { value: 'enterprise-accounts', label: 'Enterprise Accounts', count: '142K', over: true },
+    { value: 'smb-prospects', label: 'SMB Prospects', count: '18K', over: false },
+    { value: 'competitor-customers', label: 'Competitor Customers', count: '52K', over: false },
+    { value: 'new-market-entries', label: 'New Market Entries', count: '210K', over: true },
   ];
 
   function buildSelectHTML() {
-    let html = '<option value="" disabled selected>Select a list…</option>';
+    let html = '<option value="" disabled selected>Select a list\u2026</option>';
     listOptions.forEach(o => {
-      html += `<option value="${o.value}">${o.label}</option>`;
+      const suffix = o.over ? ' (exceeds 100K)' : '';
+      const dis = o.over ? ' disabled' : '';
+      html += `<option value="${o.value}"${dis}>${o.label} \u00b7 ${o.count}${suffix}</option>`;
     });
     return html;
   }
